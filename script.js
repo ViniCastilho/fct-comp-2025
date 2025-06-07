@@ -86,7 +86,7 @@ function syncScroll() {
     document.getElementById('highlighting').scrollTop = document.getElementById('editor').scrollTop;
 }
 
-const keywords = ["program", "procedure", "begin", "end", "if", "then", "else", "while", "do", "read", "write", "true", "false"];
+const keywords = ["program", "procedure", "begin", "end", "if", "then", "else", "while", "do", "true", "false"];
 const operators = ["=", "<>", "<", "<=", ">=", "/", ">", "+", "-", "*", "and", "or", "not", ":="];
 const varNames = ["int", "boolean"];
 const symbols = ["(", ")", ",", ".", ";",":"];
@@ -129,7 +129,7 @@ function buildTable() {
     const lines = text.split('\n');
     let tableHtml = '<table border="1"><thead><tr><th>Palavra</th><th>Token</th><th>Linha</th><th>Coluna Inicial</th><th>Coluna Final</th></tr></thead><tbody>';
     
-   const tokenRegex = /\d+\.\d+|\d*[@%#&a-zA-Z_]+\d*|(program|procedure|begin|end|if|then|else|while|do|read|write|true|false)|[a-zA-Z_][a-zA-Z0-9_]*|\d+|[=<>+\-*/();,.]|:=/g;
+   const tokenRegex = /\d+\.\d+|\d*[@%#&a-zA-Z_]+\d*|(program|procedure|begin|end|if|then|else|while|do|true|false)|(:=)|[a-zA-Z_][a-zA-Z0-9_]*|\d+|[=<>+\-*/();,.:]/g;
    
    let insideCommentBlock = false;
     
@@ -206,14 +206,6 @@ function buildTable() {
                 if(word.includes("do"))
                 {
                     token = "KeyWord_Do";
-                }
-                if(word.includes("read"))
-                {
-                    token = "KeyWord_Read";
-                }
-                if(word.includes("write"))
-                {
-                    token = "KeyWord_Write";
                 }
                 if(word.includes("true"))
                 {
@@ -304,8 +296,8 @@ function buildTable() {
                     token = "Symbol_Dot";
                 } else if (word === ";") {
                     token = "Symbol_Semicolon";
-                } else if (word === ':') {
-                    token = "Symbol_Colon"
+                } else if (word === ":") {
+                    token = "Symbol_Colon";
                 }
             } else if (invalidIdentifierRegex.test(word)) {
                 token = "Lexicon_Error";
@@ -406,7 +398,7 @@ function syntAnalysis() {
         }
     }
 
-    let debugStackCount = 0;
+    //let debugStackCount = 0;
     while (stack.length > 0) {
         let top = stack.pop();
         let lookahead = nextToken().token;
@@ -428,8 +420,9 @@ function syntAnalysis() {
             trace[trace.length - 1].comment = 'Análise concluída com sucesso.';
             break;
         } else if (tableTerm.includes(top)) {
-            console.log('TOP NOT INCLUDED');
+            console.log(`TOP ${top} IS INCLUDED, LOOKAHEAD IS ${lookahead}`);
             if (top === lookahead) {
+                console.log(`CONSUMING ${top}`);
                 trace[trace.length - 1].action = `Consome "${nextToken().word}"`;
                 i++;
             } else {
@@ -443,9 +436,9 @@ function syntAnalysis() {
             let topName = nonTerminals[top];
             let production = gramTable[topName]?.[pos];
             console.log(`Production #${pos} of ${lookahead} with top #${top} (${topName}) is [${production}]`);
-            if (production.constructor !== Array) {
+            if (pos < 0 || production.constructor !== Array) {
                 trace[trace.length - 1].action = 'Erro (Produção Inválida)';
-                trace[trace.length - 1].comment = `Produção inválida para "${top}".`;
+                trace[trace.length - 1].comment = `Produção inválida para "${topName}".`;
                 ErrorCount++;
                 sincronize(top);
             } else {
@@ -457,8 +450,10 @@ function syntAnalysis() {
                 //console.log(stack);
             }
         }
-        if (debugStackCount >= 3) { return; }
-        debugStackCount++;
+        //console.log(`REPEAT COUNT ${debugStackCount}`);
+        console.log(stack);
+        //if (debugStackCount >= 30) { return; }
+        //debugStackCount++;
     }
 
     buildTraceTable(trace);

@@ -22,7 +22,7 @@ nonTerminals = [
     'procedure_call',
     'procedure_call_prime',
     'conditional_command',
-    'else',
+    'KeyWord_Else',
     'repeatable_command',
     'expression',
     'expression_prime',
@@ -53,7 +53,7 @@ for (let i = 0; i < nonTerminals.length; i++) {
 gram = {};
 
 gram[nts.program] = [
-    ['KeyWord_Program', nts.identifier, 'Symbol_Semicolon', nts.block, '.'],
+    ['KeyWord_Program', nts.identifier, 'Symbol_Semicolon', nts.block, 'Symbol_Dot'],
 ];
 
 gram[nts.block] = [
@@ -81,7 +81,7 @@ gram[nts.identifier_list] = [
 ];
 
 gram[nts.identifier_list_prime] = [
-    [',', nts.identifier, nts.identifier_list_prime],
+    ['Symbol_Comma', nts.identifier, nts.identifier_list_prime],
     [],
 ];
 
@@ -110,13 +110,13 @@ gram[nts.formal_parameters_prime] = [
 ];
 
 gram[nts.formal_parameters_section] = [
-    [nts.var, nts.identifier_list, ':', nts.identifier]
+    [nts.var, nts.identifier_list, 'Symbol_Colon', nts.identifier]
 ];
 
 gram[nts.var] = /^(var|)$/;
 
 gram[nts.compound_command] = [
-    ['begin', nts.command, nts.compound_command_prime, 'end'],
+    ['KeyWord_Begin', nts.command, nts.compound_command_prime, 'KeyWord_End'],
 ];
 
 gram[nts.compound_command_prime] = [
@@ -132,12 +132,12 @@ gram[nts.command] = [
 ];
 
 gram[nts.command_prime] = [
-    [':=', nts.expression],
+    ['Operator_Assignment', nts.expression],
     ['Symbol_LeftParenthesis', nts.procedure_call_prime],
 ];
 
 gram[nts.assignment] = [
-    [nts.variable, ':=', nts.expression],
+    [nts.variable, 'Operator_Assignment', nts.expression],
 ];
 
 gram[nts.procedure_call] = [
@@ -151,16 +151,16 @@ gram[nts.procedure_call_prime] = [
 ];
 
 gram[nts.conditional_command] = [
-    ['if', nts.expression, 'then', nts.command, nts.else],
+    ['KeyWord_If', nts.expression, 'KeyWord_Then', nts.command, nts.else],
 ];
 
 gram[nts.else] = [
-    ['else', nts.command],
+    ['KeyWord_Else', nts.command],
     [],
 ];
 
 gram[nts.repeatable_command] = [
-    ['while', nts.expression, 'do', nts.command],
+    ['KeyWord_While', nts.expression, 'KeyWord_Do', nts.command],
 ];
 
 gram[nts.expression] = [
@@ -173,8 +173,8 @@ gram[nts.expression_prime] = [
 ];
 
 gram[nts.relational] = [
-    ['<'], ['='], ['>'],
-    ['<='], ['<>'], ['>='],
+    ['Operator_Lesser'], ['Operator_Equivalence'], ['Operator_Greater'],
+    ['Operator_LesserEquals'], ['Operator_Difference'], ['Operator_GreaterEquals'],
 ];
 
 gram[nts.simple_expression] = [
@@ -182,7 +182,7 @@ gram[nts.simple_expression] = [
 ];
 
 gram[nts.operation_a] = [
-    ['+'], ['-'], [],
+    ['Operator_Addition'], ['Operator_Subtraction'], [],
 ];
 
 gram[nts.simple_expression_prime] = [
@@ -191,7 +191,7 @@ gram[nts.simple_expression_prime] = [
 ];
 
 gram[nts.operation_b] = [
-    ['+'], ['-'], ['or'],
+    ['Operator_Addition'], ['Operator_Subtraction'], ['Operator_LogicalOperatorOr'],
 ];
 
 gram[nts.term] = [
@@ -204,14 +204,14 @@ gram[nts.term_prime] = [
 ];
 
 gram[nts.operation_c] = [
-    ['*'], ['/'], ['and'],
+    ['Operator_Multiplication'], ['Operator_Division'], ['Operator_LogicalOperatorAnd'],
 ];
 
 gram[nts.factor] = [
     [nts.variable],
     [nts.number],
     ['Symbol_LeftParenthesis', nts.expression, 'Symbol_RightParenthesis'],
-    ['not', nts.factor],
+    ['Operator_LogicalOperatorNot', nts.factor],
 ];
 
 gram[nts.variable] = [
@@ -229,7 +229,7 @@ gram[nts.expression_list] = [
 ];
 
 gram[nts.expression_list_prime] = [
-    [',', nts.expression, nts.expression_list_prime],
+    ['Symbol_Comma', nts.expression, nts.expression_list_prime],
     []
 ];
 
@@ -286,7 +286,7 @@ tableTerm = [
 
 gramTable = {
     'program': [
-        ['KeyWord_Program', nts.identifier, 'Symbol_Semicolon', nts.block, '.'],
+        ['KeyWord_Program', nts.identifier, 'Symbol_Semicolon', nts.block, 'Symbol_Dot'],
         ERRO,
         ERRO,
         ERRO,
@@ -568,7 +568,7 @@ gramTable = {
         [],
         ERRO,
         [],
-        [',', nts.identifier, nts.identifier_list_prime],
+        ['Symbol_Comma', nts.identifier, nts.identifier_list_prime],
         ERRO,
         ERRO,
         ERRO,
@@ -800,12 +800,12 @@ gramTable = {
         [],
         ERRO,
         ERRO,
-        [nts.var, nts.identifier_list, ':', nts.identifier],
+        [nts.var, nts.identifier_list, 'Symbol_Colon', nts.type],
         ERRO,
         ERRO,
         ERRO,
         [],
-        [nts.var, nts.identifier_list, ':', nts.identifier],
+        [nts.var, nts.identifier_list, 'Symbol_Colon', nts.type],
         ERRO,
         ERRO,
         ERRO,
@@ -838,8 +838,8 @@ gramTable = {
         TOKEN_SYNC,
         TOKEN_SYNC,
         TOKEN_SYNC,
-        ['begin', nts.command, nts.compound_command_prime, 'end'],
         ERRO,
+        [],
         ERRO,
         ERRO,
         ERRO,
@@ -877,7 +877,7 @@ gramTable = {
         TOKEN_SYNC,
         TOKEN_SYNC,
         TOKEN_SYNC,
-        ['begin', nts.command, nts.compound_command_prime, 'end'],
+        ['KeyWord_Begin', nts.command, nts.compound_command_prime, 'KeyWord_End'],
         ERRO,
         ERRO,
         ERRO,
@@ -1005,7 +1005,7 @@ gramTable = {
         TOKEN_SYNC,
         ERRO,
         ERRO,
-        [':=', nts.expression],
+        ['Operator_Assignment', nts.expression],
         ERRO,
         ERRO,
         ERRO,
@@ -1034,7 +1034,7 @@ gramTable = {
         ERRO,
         ERRO,
         ERRO,
-        [nts.variable, ':=', nts.expression],
+        [nts.variable, 'Operator_Assignment', nts.expression],
         ERRO,
         ERRO,
         ERRO,
@@ -1159,7 +1159,7 @@ gramTable = {
         ERRO,
         TOKEN_SYNC,
         TOKEN_SYNC,
-        ['if', nts.expression, 'then', nts.command, nts.else],
+        ['KeyWord_If', nts.expression, 'KeyWord_Then', nts.command, nts.else],
         ERRO,
         ERRO,
         ERRO,
@@ -1182,7 +1182,7 @@ gramTable = {
         ERRO,
         ERRO,
     ],
-    'else': [
+    'KeyWord_Else': [
         ERRO,
         ERRO,
         ERRO,
@@ -1197,7 +1197,7 @@ gramTable = {
         ERRO,
         ERRO,
         [],
-        ['else', nts.command],,
+        ['KeyWord_Else', nts.command],,
         ERRO,
         ERRO,
         ERRO,
@@ -1238,7 +1238,7 @@ gramTable = {
         TOKEN_SYNC,
         TOKEN_SYNC,
         ERRO,
-        ['while', nts.expression, 'do', nts.command],
+        ['KeyWord_While', nts.expression, 'KeyWord_Do', nts.command],
         ERRO,
         ERRO,
         ERRO,
@@ -1361,12 +1361,12 @@ gramTable = {
         TOKEN_SYNC,
         TOKEN_SYNC,
         TOKEN_SYNC,
-        ['='],
-        ['<>'],
-        ['<'],
-        ['<='],
-        ['=>'],
-        ['>'],
+        ['Operator_Equivalence'],
+        ['Operator_Difference'],
+        ['Operator_Lesser'],
+        ['Operator_LesserEquals'],
+        ['Operator_GreaterEquals'],
+        ['Operator_Greater'],
         TOKEN_SYNC,
         TOKEN_SYNC,
         TOKEN_SYNC,
@@ -1435,8 +1435,8 @@ gramTable = {
         ERRO,
         ERRO,
         ERRO,
-        ['+'],
-        ['-'],
+        ['Operator_Addition'],
+        ['Operator_Subtraction'],
         [],
         [],
         ERRO,
@@ -1513,8 +1513,8 @@ gramTable = {
         ERRO,
         ERRO,
         ERRO,
-        ['+'],
-        ['-'],
+        ['Operator_Addition'],
+        ['Operator_Subtraction'],
         TOKEN_SYNC,
         TOKEN_SYNC,
         ERRO,
@@ -1526,7 +1526,7 @@ gramTable = {
         ERRO,
         ERRO,
         ERRO,
-        ['or'],
+        ['Operator_LogicalOperatorOr'],
         ERRO,
         ERRO,
         ERRO,
@@ -1644,9 +1644,9 @@ gramTable = {
 		ERRO,
 		ERRO,
 		ERRO,
-		['*'],
-		['/'],
-		['and'],
+		['Operator_Multiplication'],
+		['Operator_Division'],
+		['Operator_LogicalOperatorAnd'],
 		ERRO,
 		ERRO
     ],
@@ -1672,7 +1672,7 @@ gramTable = {
 		TOKEN_SYNC,
 		TOKEN_SYNC,
         [nts.number],
-        ['not', nts.factor],
+        ['Operator_LogicalOperatorNot', nts.factor],
 		TOKEN_SYNC,
 		TOKEN_SYNC,
 		TOKEN_SYNC,
@@ -1816,7 +1816,7 @@ gramTable = {
 		ERRO,
 		ERRO,
 		ERRO,
-		[',', nts.expression, nts.expression_list_prime],
+		['Symbol_Comma', nts.expression, nts.expression_list_prime],
 		ERRO,
 		[],
 		ERRO,
@@ -1866,7 +1866,7 @@ gramTable = {
 		ERRO,
 		TOKEN_SYNC,
 		TOKEN_SYNC,
-		/^[0-9]+$/,
+		['Number_Int'],
 		ERRO,
 		TOKEN_SYNC,
 		TOKEN_SYNC,
@@ -1892,7 +1892,7 @@ gramTable = {
 		TOKEN_SYNC,
 		TOKEN_SYNC,
 		TOKEN_SYNC,
-		/^[a-zA-Z_][a-zA-Z_0-9]*$/,
+		['Identifier'],
 		TOKEN_SYNC,
 		TOKEN_SYNC,
 		TOKEN_SYNC,
